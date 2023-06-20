@@ -1,0 +1,26 @@
+# When there is a push in master redeploy on dokku
+name: 'Dokku deployment'
+on:
+  workflow_run:
+    workflows: ["Continuous Integration"]
+    types:
+      - completed
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Cloning repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Push to dokku
+        uses: dokku/github-action@master
+        with:
+          git_remote_url: 'ssh://dokku@dokku.aldazosa.net:22/dai-ichi'
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
